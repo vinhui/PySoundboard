@@ -1,0 +1,14 @@
+[
+	{
+		"file": "rick.mp3",
+		"aliases": [
+			"mySound",
+			"rick"
+		],
+		"GPIO_pin": 10
+	},
+	{
+		"file": "beep-03.wav",
+		"aliases": ["beep"]
+	}
+]
