@@ -1,6 +1,12 @@
 import http.server
+import http.server
+import mimetypes
 import os
 import re
+import tempfile
+
+from streaming_form_data import StreamingFormDataParser
+from streaming_form_data.targets import FileTarget
 
 import config as cfg
 from soundboard import Soundboard
@@ -34,10 +40,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return
 
             if self.path.endswith(".js") or \
+                    self.path.endswith(".html") or \
                     self.path.endswith(".css") or \
                     self.path.endswith(".ico") or \
-                    self.path.endswith(".png" or \
-                                       self.path.endswith(".jpg")):
+                    self.path.endswith(".png") or \
+                    self.path.endswith(".jpg"):
                 f = self.send_head()
                 if f:
                     self.copyfile(f, self.wfile)
@@ -67,6 +74,44 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(
                         self.parsefile(f).encode('utf-8')
                     )
+        except Exception as ex:
+            print("ERROR: {0}".format(ex))
+            self.send_response(500)
+            self.end_headers()
+            if cfg.VERBOSE_LOGGING:
+                raise ex
+
+    def do_POST(self):
+        try:
+            if not self.check_auth(True):
+                return
+
+            self.send_response(200)
+            self.send_header('Content-type', "text/html")
+            self.end_headers()
+
+            self.wfile.write(b"")
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+
+            if self.path == "/upload-sound/":
+                f = tempfile.NamedTemporaryFile(delete=False)
+                f.close()
+
+                file = FileTarget(f.name)
+                parser = StreamingFormDataParser(headers=self.headers)
+                parser.register("file", file)
+                parser.data_received(post_data)
+                mime, encoding = mimetypes.guess_type(file.multipart_filename)
+                print("Received file '{0}' with mimetype '{1}'".format(file.multipart_filename, mime))
+                if str(mime).startswith("audio"):
+                    save_path = cfg.SOUNDS_DIR + "/" + file.multipart_filename
+                    print("Saving file to '{0}'".format(save_path))
+                    os.rename(f.name, save_path)
+                    self.wfile.write(b"Sound saved")
+                else:
+                    os.remove(f.name)
+                    self.wfile.write(b"Not a sound file!")
         except Exception as ex:
             print("ERROR: {0}".format(ex))
             self.send_response(500)
