@@ -6,7 +6,7 @@ import re
 import tempfile
 
 from streaming_form_data import StreamingFormDataParser
-from streaming_form_data.targets import FileTarget
+from streaming_form_data.targets import FileTarget, ValueTarget
 
 import config as cfg
 from soundboard import Soundboard
@@ -107,9 +107,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 f.close()
 
                 file = FileTarget(f.name)
+
+                aliases = ValueTarget()
+                use_gpio_pin = ValueTarget()
+                gpio_pin = ValueTarget()
+
                 parser = StreamingFormDataParser(headers=self.headers)
+                parser.register("aliases", aliases)
+                parser.register("use-gpio-pin", use_gpio_pin)
+                parser.register("gpio-pin", gpio_pin)
                 parser.register("file", file)
                 parser.data_received(post_data)
+
+                if SOUNDBOARD.contains_sound_file(file.multipart_filename):
+                    print("Sound file is already registered, not going to add it again")
+                    self.wfile.write(b"Could not add duplicate sound file")
+                    return
+
                 mime, encoding = mimetypes.guess_type(file.multipart_filename)
                 print("Received file '{0}' with mimetype '{1}'".format(file.multipart_filename, mime))
                 if str(mime).startswith("audio"):
@@ -117,6 +131,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     print("Saving file to '{0}'".format(save_path))
                     os.rename(f.name, save_path)
                     self.wfile.write(b"Sound saved")
+
+                    aliases = aliases.value.decode("utf-8")
+                    aliases = [x.strip() for x in aliases.split(',')]
+                    if use_gpio_pin.value == b"on":
+                        SOUNDBOARD.add_sound(file.multipart_filename, aliases, int(gpio_pin.value.decode("utf-8")))
+                    else:
+                        SOUNDBOARD.add_sound(file.multipart_filename, aliases)
                 else:
                     os.remove(f.name)
                     self.wfile.write(b"Not a sound file!")

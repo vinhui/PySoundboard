@@ -127,6 +127,30 @@ class Soundboard:
 
         return False
 
+    def add_sound(self, file, aliases, gpio_pin=None):
+        if self.contains_sound_file(file):
+            print("Sound file '{0}' already registered".format(file))
+            return
+
+        s = {"file": file, "aliases": aliases}
+        if gpio_pin is not None:
+            s["gpio_pin"] = gpio_pin
+        self.sounds.append(s)
+        self.write_to_config()
+
+    def write_to_config(self):
+        print("Updating sound config file '{0}'".format(config.SOUNDS_CONFIG))
+        serialized = json.dumps(self.sounds, indent=4)
+        f = open(config.SOUNDS_CONFIG, "w")
+        f.write(serialized)
+        f.close()
+
+    def contains_sound_file(self, file):
+        for item in self.sounds:
+            if item["file"] == file:
+                return True
+        return False
+
 
 from time import sleep
 
