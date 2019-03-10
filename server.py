@@ -1,5 +1,6 @@
 import http.server
 import http.server
+import json
 import mimetypes
 import os
 import re
@@ -79,6 +80,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif self.path == "/reload/":
                     SOUNDBOARD.reload_config()
                     self.wfile.write(b"Config reloaded")
+                elif self.path == "/sounds/":
+                    self.wfile.write(json.dumps(SOUNDBOARD.sounds).encode("utf-8"))
                 else:
                     f = open(cfg.HTML_FILE, "r").read()
                     self.wfile.write(
