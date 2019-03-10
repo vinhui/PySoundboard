@@ -36,6 +36,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         # Construct a server response.
+        if cfg.VERBOSE_LOGGING:
+            print("Got request from {0}".format(self.client_address))
+
         try:
             if not self.check_auth():
                 return
@@ -95,6 +98,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 raise ex
 
     def do_POST(self):
+        if cfg.VERBOSE_LOGGING:
+            print("Got request from {0}".format(self.client_address))
+
         try:
             if not self.check_auth(True):
                 return
