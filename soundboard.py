@@ -106,6 +106,8 @@ class Soundboard:
         for item in self.sounds:
             if item["file"] == name:
                 return item
+            if path.splitext(item["file"])[0] == name:
+                return item
             if "aliases" not in item:
                 continue
             for alias in item["aliases"]:

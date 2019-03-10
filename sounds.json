@@ -2,8 +2,7 @@
 	{
 		"file": "rick.mp3",
 		"aliases": [
-			"mySound",
-			"rick"
+			"mySound"
 		],
 		"GPIO_pin": 10
 	},
