@@ -78,9 +78,11 @@ class Soundboard:
                 if config.VERBOSE_LOGGING:
                     print("Could not use the 'non blocking mode' from playsound, running it in a different thread")
                 threading.Thread(target=playsound, args=(full_path,)).start()
+
+            return True
         else:
             print("Could not find sound at '{0}'".format(full_path))
-        pass
+            return False
 
     def play_sound_by_name(self, name):
         if config.VERBOSE_LOGGING:
@@ -88,9 +90,10 @@ class Soundboard:
 
         sound = self.get_sound_by_name(name)
         if sound is not False:
-            self.play_sound_file(sound["file"])
+            return self.play_sound_file(sound["file"])
         else:
             print("Could not find sound '{0}'".format(name))
+            return False
 
     def play_sound_from_pin(self, pin):
         if config.VERBOSE_LOGGING:

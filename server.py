@@ -72,8 +72,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
                 if str(self.path).startswith("/playsound/"):
                     name = str(self.path)[11:]
-                    SOUNDBOARD.play_sound_by_name(name)
-                    self.wfile.write(b"Attempting to play sound")
+                    if SOUNDBOARD.play_sound_by_name(name):
+                        self.wfile.write(b"Playing sound")
+                    else:
+                        self.wfile.write(b"Failed to play sound")
                 elif self.path == "/reload/":
                     SOUNDBOARD.reload_config()
                     self.wfile.write(b"Config reloaded")
