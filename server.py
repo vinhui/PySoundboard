@@ -5,6 +5,7 @@ import mimetypes
 import os
 import re
 import tempfile
+import shutil
 
 from streaming_form_data import StreamingFormDataParser
 from streaming_form_data.targets import FileTarget, ValueTarget
@@ -140,7 +141,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if str(mime).startswith("audio"):
                     save_path = cfg.SOUNDS_DIR + "/" + file.multipart_filename
                     print("Saving file to '{0}'".format(save_path))
-                    os.rename(f.name, save_path)
+                    shutil.move(f.name, save_path)
                     self.wfile.write(b"Sound saved")
 
                     aliases = aliases.value.decode("utf-8")
