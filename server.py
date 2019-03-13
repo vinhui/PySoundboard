@@ -84,8 +84,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif self.path == "/reload/":
                     SOUNDBOARD.reload_config()
                     self.wfile.write(b"Config reloaded")
-                elif self.path == "/sounds/":
+                elif self.path == "/sounds/json/":
                     self.wfile.write(json.dumps(SOUNDBOARD.sounds).encode("utf-8"))
+                elif self.path == "/sounds/":
+                    sounds = ""
+                    for s in SOUNDBOARD.sounds:
+                        sounds += "- " + s["file"] + "\n"
+                        sounds += "- " + os.path.splitext(s["file"])[0] + "\n"
+                        for a in s["aliases"]:
+                            sounds += "- " + a + "\n"
+
+                    self.wfile.write(sounds.encode("utf-8"))
+                elif self.path == "/sounds/html/":
+                    sounds = ""
+                    for s in SOUNDBOARD.sounds:
+                        sounds += "- " + s["file"] + "<br />\n"
+                        sounds += "- " + os.path.splitext(s["file"])[0] + "<br />\n"
+                        for a in s["aliases"]:
+                            sounds += "- " + a + "<br />\n"
+
+                    self.wfile.write(sounds.encode("utf-8"))
                 else:
                     f = open(cfg.HTML_FILE, "r").read()
                     self.wfile.write(
