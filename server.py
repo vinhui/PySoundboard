@@ -53,12 +53,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if f:
                     self.copyfile(f, self.wfile)
                     f.close()
-            elif self.path.endswith(".html"):
+            elif ".html" in self.path:
                 self.send_response(200)
                 self.send_header('Content-type', "text/html")
                 self.end_headers()
 
-                f = open(os.path.dirname(os.path.realpath(__file__)) + self.path, "r").read()
+                f = open(os.path.dirname(os.path.realpath(__file__)) + self.path.split("?")[0], "r").read()
                 self.wfile.write(
                     self.parsefile(f).encode('utf-8')
                 )
