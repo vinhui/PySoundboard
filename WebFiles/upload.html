@@ -1,5 +1,10 @@
 #admin
-<style>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>PySoundboard</title>
+    <style>
     label {
         display: inline-block;
         width: 300px;
@@ -12,22 +17,28 @@
     input[type=checkbox]:checked~.if-gpio {
         display: inline-block;
     }
-</style>
 
-<h1>Upload new sound file</h1>
-<form action="/upload-sound/" enctype="multipart/form-data" method="POST">
-    <label for="file">Audio file</label>
-    <input type="file" name="file" id="file"/><br/>
+    </style>
+</head>
+<body>
+    <h1>PySoundboard</h1>
+    <h2>Upload Sound</h2>
 
-    <label for="aliases">Aliases (comma separated)</label>
-    <input type="text" name="aliases" id="aliases"/><br/>
+    <form action="/upload-sound/" enctype="multipart/form-data" method="POST">
+        <label for="file">Audio file</label>
+        <input type="file" name="file" id="file"/><br/>
 
-    <label for="use-gpio-pin">Use GPIO pin</label>
-    <input type="checkbox" name="use-gpio-pin" id="use-gpio-pin"/><br />
+        <label for="aliases">Aliases (comma separated)</label>
+        <input type="text" name="aliases" id="aliases"/><br/>
 
-    <label for="gpio-pin" class="if-gpio">GPIO pin</label>
-    <input type="number" value="0" min="0" max="24" name="gpio-pin" id="gpio-pin" class="if-gpio"/><br />
+        <label for="use-gpio-pin">Use GPIO pin</label>
+        <input type="checkbox" name="use-gpio-pin" id="use-gpio-pin"/><br />
 
-    <input type="submit" value="Submit"/>
-</form>
+        <label for="gpio-pin" class="if-gpio">GPIO pin</label>
+        <input type="number" value="0" min="0" max="24" name="gpio-pin" id="gpio-pin" class="if-gpio"/><br />
+
+        <input type="submit" value="Submit"/>
+    </form>
+</body>
+</html>
 #end
