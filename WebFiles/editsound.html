@@ -1,0 +1,67 @@
+#admin
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>PySoundboard</title>
+    <style>
+    label {
+        display: inline-block;
+        width: 300px;
+    }
+
+    .if-gpio {
+        display: none;
+    }
+
+    input[type=checkbox]:checked~.if-gpio {
+        display: inline-block;
+    }
+
+    </style>
+</head>
+<body>
+    <h1>PySoundboard</h1>
+    <h2>Edit Sound</h2>
+
+    <form action="/edit-sound/" enctype="multipart/form-data" method="post">
+        <label for="sound">Sound</label>
+        <input id="sound" name="sound" value="" readonly/><br/>
+
+        <label for="aliases">Aliases</label>
+        <input id="aliases" name="aliases" value=""/><br/>
+
+        <label for="use-gpio-pin">Use GPIO pin</label>
+        <input type="checkbox" name="use-gpio-pin" id="use-gpio-pin"/><br/>
+
+        <label for="gpio-pin" class="if-gpio">GPIO pin</label>
+        <input type="number" value="0" min="0" max="24" name="gpio-pin" id="gpio-pin" class="if-gpio"/><br/>
+
+        <input type="submit" value="Submit"/>
+    </form>
+
+    <script type="text/javascript">
+        var url = new URL(window.location.href);
+
+        var sound = check_param("sound");
+        var aliases = check_param("aliases");
+        document.getElementById("sound").value = sound;
+        document.getElementById("aliases").value = aliases;
+
+        var gpiopin = url.searchParams.get("gpio-pin");
+        if(gpiopin != undefined) {
+            document.getElementById("use-gpio-pin").checked = true;
+            document.getElementById("gpio-pin").value = gpiopin;
+        }
+
+        function check_param(name) {
+            var param = url.searchParams.get(name);
+            if(param == undefined) {
+                return "";
+            }
+            return param;
+        }
+    </script>
+</body>
+</html>
+#end

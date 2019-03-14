@@ -154,6 +154,9 @@ class Soundboard:
                 return True
         return False
 
+    def contains_sound(self, name):
+        return self.get_sound_by_name(name) is not False
+
 
 from time import sleep
 

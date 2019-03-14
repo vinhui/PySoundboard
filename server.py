@@ -96,13 +96,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
                     self.wfile.write(sounds.encode("utf-8"))
                 elif self.path == "/sounds/html/":
-                    sounds = ""
+                    sounds = "<ul>\n"
                     for s in SOUNDBOARD.sounds:
-                        sounds += "- " + s["file"] + "<br />\n"
-                        sounds += "- " + os.path.splitext(s["file"])[0] + "<br />\n"
-                        for a in s["aliases"]:
-                            sounds += "- " + a + "<br />\n"
-
+                        sounds += self._print_sound_html(s)
+                    sounds += "</ul>"
                     self.wfile.write(sounds.encode("utf-8"))
                 else:
                     f = open(cfg.HTML_FILE, "r").read()
@@ -115,6 +112,28 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             if cfg.VERBOSE_LOGGING:
                 raise ex
+
+    @staticmethod
+    def _print_sound_html(sound):
+        html = Handler._print_sound_html_line(sound, sound["file"])
+        html += Handler._print_sound_html_line(sound, os.path.splitext(sound["file"])[0])
+
+        for a in sound["aliases"]:
+            html += Handler._print_sound_html_line(sound, a)
+
+        return html
+
+    @staticmethod
+    def _print_sound_html_line(sound, name):
+        html = "<li>"
+        html += "<a href=\"/WebFiles/editsound.html?"
+        html += "sound=" + sound["file"]
+        if "aliases" in sound:
+            html += "&aliases=" + ",".join(sound["aliases"])
+        if "GPIO_pin" in sound:
+            html += "&gpio-pin=" + str(sound["GPIO_pin"])
+        html += "\">" + name + "</a></li>\n"
+        return html
 
     def do_POST(self):
         if cfg.VERBOSE_LOGGING:
@@ -171,6 +190,36 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 else:
                     os.remove(f.name)
                     self.wfile.write(b"Not a sound file!")
+            elif self.path == "/edit-sound/":
+                sound = ValueTarget()
+                aliases = ValueTarget()
+                use_gpio_pin = ValueTarget()
+                gpio_pin = ValueTarget()
+
+                parser = StreamingFormDataParser(headers=self.headers)
+                parser.register("sound", sound)
+                parser.register("aliases", aliases)
+                parser.register("use-gpio-pin", use_gpio_pin)
+                parser.register("gpio-pin", gpio_pin)
+                parser.data_received(post_data)
+
+                print("Got a request for editing sound file '{0}'".format(sound.value.decode("utf-8")))
+                s = SOUNDBOARD.get_sound_by_name(sound.value.decode("utf-8"))
+
+                if not s:
+                    print("Sound to edit does not exist")
+                    self.wfile.write(b"Sound does not exist")
+                else:
+                    print("Editing data for '{0}'".format(s["file"]))
+                    s["aliases"] = aliases.value.decode("utf-8").split(",")
+                    if use_gpio_pin.value == b"on":
+                        s["GPIO_pin"] = int(gpio_pin.value.decode("utf-8"))
+                    else:
+                        s.pop("GPIO_pin", None)
+                        if cfg.VERBOSE_LOGGING:
+                            print(s)
+                    SOUNDBOARD.write_to_config()
+                    self.wfile.write(b"Saved changes successfully")
         except Exception as ex:
             print("ERROR: {0}".format(ex))
             self.send_response(500)
