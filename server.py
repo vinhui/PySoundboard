@@ -75,7 +75,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self.send_header('Content-type', "text/html")
                     self.end_headers()
 
-                if str(self.path).startswith("/playsound/") or str(self.path).startswith("/play/"):
+                if str(self.path).startswith("/playsound/"):
                     name = str(self.path)[11:]
                     if SOUNDBOARD.play_sound_by_name(name):
                         self.wfile.write(b"Playing sound")
