@@ -5,6 +5,6 @@ Make sure you got the following packages installed on your pi:
 
 `sudo apt-get install python-rpi.gpio python3-rpi.gpio`
 
-After that, install the playsound package:
+After that, if you're not running on a raspberry, install the playsound package:
 `pip3 install playsound`
 then install streaming-form-data: `pip3 install streaming-form-data`

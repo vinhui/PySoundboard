@@ -1,13 +1,15 @@
 import json
 import threading
 from os import path
-from playsound import playsound
 
 import config
 
 if not config.NO_PI:
     import RPi.GPIO as GPIO
     import atexit
+    from subprocess import call
+else:
+    from playsound import playsound
 
 
 class Soundboard:
@@ -72,12 +74,15 @@ class Soundboard:
 
         if path.isfile(full_path):
             print("Playing sound {0}".format(full_path))
-            try:
-                playsound(full_path, False)
-            except NotImplementedError:
-                if config.VERBOSE_LOGGING:
-                    print("Could not use the 'non blocking mode' from playsound, running it in a different thread")
-                threading.Thread(target=playsound, args=(full_path,)).start()
+            if config.NO_PI:
+                try:
+                    playsound(full_path, False)
+                except NotImplementedError:
+                    if config.VERBOSE_LOGGING:
+                        print("Could not use the 'non blocking mode' from playsound, running it in a different thread")
+                    threading.Thread(target=playsound, args=(full_path,)).start()
+            else:
+                threading.Thread(target=lambda: call(["aplay", "-q", file_path])).start()
 
             return True
         else:
