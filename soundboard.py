@@ -82,7 +82,7 @@ class Soundboard:
                         print("Could not use the 'non blocking mode' from playsound, running it in a different thread")
                     threading.Thread(target=playsound, args=(full_path,)).start()
             else:
-                threading.Thread(target=lambda: call(["aplay", "-q", file_path])).start()
+                threading.Thread(target=lambda: call(["aplay", "-q", full_path])).start()
 
             return True
         else:
