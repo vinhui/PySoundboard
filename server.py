@@ -6,6 +6,7 @@ import os
 import re
 import tempfile
 import shutil
+import urllib
 
 from streaming_form_data import StreamingFormDataParser
 from streaming_form_data.targets import FileTarget, ValueTarget
@@ -77,6 +78,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
                 if str(self.path).startswith("/playsound/"):
                     name = str(self.path)[11:]
+                    name = urllib.parse.unquote(name)
                     if SOUNDBOARD.play_sound_by_name(name):
                         self.wfile.write(b"Playing sound")
                     else:
