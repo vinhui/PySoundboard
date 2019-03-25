@@ -58,8 +58,8 @@ class Soundboard:
                 continue
 
             pin = item["GPIO_pin"]
-            GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-            GPIO.add_event_detect(pin, GPIO.RISING, callback=lambda: self.on_button_pressed(pin))
+            GPIO.setup(pin, GPIO.IN)
+            GPIO.add_event_detect(pin, GPIO.RISING, callback=lambda x: self.on_button_pressed(pin), bouncetime=200)
 
     def on_button_pressed(self, pin):
         if config.VERBOSE_LOGGING:
